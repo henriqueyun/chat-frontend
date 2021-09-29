@@ -18,6 +18,7 @@
     </q-drawer>
 
     <q-page-container>
+      <router-view />
     </q-page-container>
 
     <q-dialog v-model="schedule_modal" persistent>
