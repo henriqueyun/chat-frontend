@@ -14,6 +14,7 @@
     >
       <Chats>
       </Chats>
+      <q-btn class="fixed-bottom full-width" color="primary" icon="calendar_today" label="Schedule new Xet" />
     </q-drawer>
 
     <q-page-container>
