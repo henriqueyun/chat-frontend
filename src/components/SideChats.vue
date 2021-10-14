@@ -18,5 +18,14 @@
 <script>
 import { defineComponent } from 'vue'
 
-export default defineComponent({ name: 'Chats' })
+export default defineComponent({
+  name: 'Chats',
+
+  props: {
+    username: {
+      require: true,
+      type: String
+    }
+  }
+})
 </script>
