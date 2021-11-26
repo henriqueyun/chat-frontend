@@ -22,6 +22,7 @@ module.exports = configure(function (ctx) {
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli/boot-files
     boot: [
+      'axios'
     ],
 
     // https://v2.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
@@ -70,8 +71,8 @@ module.exports = configure(function (ctx) {
         chain.plugin('eslint-webpack-plugin')
           .use(ESLintPlugin, [{ extensions: ['js', 'vue'] }])
         chain.module.rule('pug')
-        .test(/\.pug$/)
-        .use('pug-plain-loader')
+          .test(/\.pug$/)
+          .use('pug-plain-loader')
           .loader('pug-plain-loader')
       }
     },
@@ -223,6 +224,7 @@ module.exports = configure(function (ctx) {
         chain.plugin('eslint-webpack-plugin')
           .use(ESLintPlugin, [{ extensions: ['js'] }])
       }
-    }
+    },
+    preFetch: true
   }
 })

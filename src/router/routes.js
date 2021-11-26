@@ -3,11 +3,14 @@ const routes = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/ChatPage') }
+      {
+        path: '', component: () => import('pages/ChatPage')
+      },
+      {
+        path: '/xet/:id', data: 0, component: () => import('pages/ChatPage')
+      }
     ]
   },
-  // Always leave this as last one,
-  // but you can also remove it
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/Error404.vue')
