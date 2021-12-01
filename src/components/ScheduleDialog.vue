@@ -59,7 +59,7 @@
         </q-card-section>
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" v-close-popup />
-          <q-btn flat :loading="loading" v-close-popup="loading" color="primary" @click="scheduleXet()" label="Schedule new xet" />
+          <q-btn flat :loading="loading" v-close-popup="loading" color="primary" @click="scheduleXet()" label="Schedule A xet" />
         </q-card-actions>
       </q-card>
   </q-dialog>

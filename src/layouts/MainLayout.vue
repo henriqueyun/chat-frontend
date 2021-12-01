@@ -1,6 +1,6 @@
 <template>
   <q-layout view="lHh Lpr lff">
-    <q-header elevated>
+    <q-header>
       <q-toolbar class="row">
         <q-toolbar-title class="row justify-center">
           {{ username }}'s Xet
@@ -9,7 +9,7 @@
     </q-header>
 
     <q-page-container>
-      <router-view/>
+      <router-view :key="$route.fullPath" :selectedXet="selectedXet"/>
     </q-page-container>
 
     <q-drawer
@@ -18,7 +18,7 @@
     >
       <SideChats v-bind:username="username" :xets="xets">
       </SideChats>
-      <q-btn class="fixed-bottom full-width" color="primary" icon="calendar_today" label="Schedule new Xet" @click="schedule_modal = true"/>
+      <q-btn class="fixed-bottom full-width no-border-radius outline" color="primary" icon="calendar_today" label="Schedule new Xet" @click="schedule_modal = true"/>
     </q-drawer>
   </q-layout>
 
@@ -60,7 +60,8 @@ export default defineComponent({
     return {
       username: 'Guest',
       messages: [],
-      xets: []
+      xets: [],
+      selectedXet: 'bar'
     }
   },
 

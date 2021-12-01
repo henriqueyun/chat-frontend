@@ -3,47 +3,58 @@ q-page
   .row.justify-center(style="min-height: inherit;")
     .row.col-12.justify-center.ma-lg.items-stretch.full-height.q-pa-md(style="min-height: inherit;")
       .col-12
+        q-chat-message(v-if="xetMessages.length" name="test user" :text="xetMessages" sent)
+        q-banner.text-center(v-else dense border)
+          p.text-subtitle1 Não há mensagens
       .col-12.self-end
         q-input.standout.bottom-slots(v-model="text" label="Digite aqui sua mensagem")
-          q-btn(round dense flat icon="send" @click="sendMessage()")
+          q-btn(round dense flat icon="send" @click="sendMessage(this.$route.params.id)")
 </template>
 
 <script>
 import { defineComponent } from 'vue'
+import { date } from 'quasar'
 import { io } from 'socket.io-client'
 
 export default defineComponent({
   name: 'Chat',
 
-  preFetch ({ currentRoute, previousRoute }) {
-    console.log(currentRoute.params)
-  },
-
   data: function () {
     return {
       text: '',
-      socket: {}
+      socket: {},
+      xets: []
     }
   },
 
   created () {
     this.connectXet()
+    this.loadXetMessages(this.$route.params.id)
   },
 
-  // q-chat-message(name="username" :text="['HAHA', 'MT FEIO FILHO']" sent)
-  // q-chat-message(name="other person" :text="['Tranquilo e contigo?']")
-  // q-chat-message(name=username sent :text="messages")
+  computed: {
+    xetMessages: function () {
+      return this.xets.map(x => x.message)
+    }
+  },
 
   methods: {
     loadXetMessages: function (id) {
-      this.$axios.get(`/xet/${id}/messages`)
+      this.$axios.get(`/xet/${id}/message/all`)
         .then(res => {
           this.xets = res.data
         })
     },
 
-    sendMessage: function () {
+    sendMessage: function (id) {
       this.socket.emit('message', this.text)
+      this.$axios.post(`/xet/${id}/message`, {
+        sender: this.username,
+        message: this.text,
+        sendTime: date.formatDate(Date.now(), 'YYYY-MM-DDTHH:mm:ss')
+      }).then(res => {
+        console.log('sended')
+      })
     },
 
     connectXet: function () {
