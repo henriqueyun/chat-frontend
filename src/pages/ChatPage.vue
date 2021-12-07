@@ -14,7 +14,6 @@ q-page
 <script>
 import { defineComponent } from 'vue'
 import { date } from 'quasar'
-import { io } from 'socket.io-client'
 
 export default defineComponent({
   name: 'Chat',
@@ -22,13 +21,11 @@ export default defineComponent({
   data: function () {
     return {
       text: '',
-      socket: {},
       xets: []
     }
   },
 
   created () {
-    this.connectXet()
     this.loadXetMessages(this.$route.params.id)
   },
 
@@ -47,21 +44,17 @@ export default defineComponent({
     },
 
     sendMessage: function (id) {
-      this.socket.emit('message', this.text)
-      this.$axios.post(`/xet/${id}/message`, {
+      const message = {
         sender: this.username,
         message: this.text,
         sendTime: date.formatDate(Date.now(), 'YYYY-MM-DDTHH:mm:ss')
-      }).then(res => {
-        console.log('sended')
-      })
-    },
-
-    connectXet: function () {
-      this.socket = io(process.env.SOCKET_URL)
-        .on('connect', () => {
-          console.log(`Conectado via socket.io em ${process.env.SOCKET_URL}`)
+      }
+      this.socket.emit('message', message)
+      this.$axios.post(`/xet/${id}/message`, message)
+        .then(res => {
+          console.log('message sended at', message.sendTime)
         })
+      this.text = ''
     }
   },
 
@@ -73,6 +66,10 @@ export default defineComponent({
     username: {
       type: String,
       default: function () { return '' }
+    },
+    socket: {
+      type: Object,
+      default: function () { return {} }
     }
   }
 })

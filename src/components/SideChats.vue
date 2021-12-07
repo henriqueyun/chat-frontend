@@ -11,8 +11,8 @@
         <q-item-label>{{ title }} {{ owner }}</q-item-label>
         <q-item-label caption> {{ getInHours(startTime) }} until {{ getInHours(endTime) }}</q-item-label>
       </q-item-section>
-      <q-item-section side>
-        0m started
+      <q-item-section avatar>
+        <q-icon name="lock" />
       </q-item-section>
     </q-item>
   </router-link>
@@ -32,16 +32,11 @@ export default defineComponent({
     }
   },
 
-  mounted () {
-    console.log(this.xets)
-  },
-
   props: {
     username: {
       require: true,
       type: String
     },
-
     xets: {
       require: true,
       type: Array

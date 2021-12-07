@@ -9,7 +9,7 @@
     </q-header>
 
     <q-page-container>
-      <router-view :key="$route.fullPath" :selectedXet="selectedXet"/>
+      <router-view :key="$route.fullPath" :selectedXet="selectedXet" :socket="socket"/>
     </q-page-container>
 
     <q-drawer
@@ -38,6 +38,8 @@ import SideChats from 'src/components/SideChats.vue'
 import ScheduleDialog from 'components/ScheduleDialog.vue'
 import ChatUsernameDialog from 'components/ChatUsernameDialog.vue'
 
+import { io } from 'socket.io-client'
+
 export default defineComponent({
   name: 'MainLayout',
 
@@ -52,6 +54,10 @@ export default defineComponent({
       this.$axios.get('/xet/all')
         .then(res => {
           this.xets = res.data
+          this.socket = io(process.env.SOCKET_URL)
+            .on('connect', () => {
+              console.log(`Conectado via socket.io em ${process.env.SOCKET_URL}`)
+            })
         })
     }
   },
@@ -61,7 +67,8 @@ export default defineComponent({
       username: 'Guest',
       messages: [],
       xets: [],
-      selectedXet: 'bar'
+      selectedXet: 'bar',
+      socket: {}
     }
   },
 
