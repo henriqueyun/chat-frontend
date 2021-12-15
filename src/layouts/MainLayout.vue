@@ -3,13 +3,13 @@
     <q-header>
       <q-toolbar class="row">
         <q-toolbar-title class="row justify-center">
-          {{ username }}'s Xet
+          <span><router-link class="" to="/">{{ username }}'s Xet</router-link></span>
         </q-toolbar-title>
       </q-toolbar>
     </q-header>
 
     <q-page-container>
-      <router-view :key="$route.fullPath" :selectedXet="selectedXet" :socket="socket"/>
+      <router-view :key="$route.fullPath" :selectedXet="selectedXet" :username="username" :socket="socket"/>
     </q-page-container>
 
     <q-drawer
@@ -28,7 +28,7 @@
     v-model="require_username">
   </ChatUsernameDialog>
 
-  <ScheduleDialog v-model="schedule_modal">
+  <ScheduleDialog v-on:xetAdded="loadXets" v-model="schedule_modal">
   </ScheduleDialog>
 </template>
 <script>
@@ -65,7 +65,6 @@ export default defineComponent({
   data () {
     return {
       username: 'Guest',
-      messages: [],
       xets: [],
       selectedXet: 'bar',
       socket: {}
@@ -86,3 +85,10 @@ export default defineComponent({
   }
 })
 </script>
+
+<style scoped>
+a {
+  color: white;
+  text-decoration: none;
+  }
+</style>

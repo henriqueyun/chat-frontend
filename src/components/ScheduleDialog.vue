@@ -89,7 +89,7 @@ export default defineComponent({
         startTime: this.startDateTime,
         endTime: this.endDateTime
       }).then(() => {
-        this.resetSchedule()
+        this.cleanScheduleFields()
         this.setLoading(false)
         this.$emit('xetAdded', '')
       })
@@ -97,7 +97,7 @@ export default defineComponent({
     setLoading: function (isLoading) {
       this.loading = isLoading
     },
-    resetSchedule: function () {
+    cleanScheduleFields: function () {
       this.title = ''
       this.startDateTime = ''
       this.endDateTime = ''

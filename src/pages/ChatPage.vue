@@ -1,12 +1,15 @@
 <template lang="pug">
-q-page#xd
-  .row.justify-center(style="min-height: inherit;")
+q-page#xetPage
+  .row.justify-center(style="min-height: inherit;" :class="messages.length ? q-pb-xl : ''")
     .row.col-12.justify-center.ma-lg.items-stretch.full-height.q-pa-md(style="min-height: inherit;")
-      .col-12
-        q-chat-message(v-if="xetMessages.length" name="xet" :text="xetMessages")
-        q-banner.text-center(v-else dense border)
+      .col-12(v-if="isMessagesLoading")
+        q-spinner(color="primary" size="3em")
+      .col-12(v-else-if="messages.length")
+          q-chat-message(v-for="messagesToRender in setOfMessages" :name="messagesToRender.sender" :text="messagesToRender.messages" :sent="messagesToRender.sender === username")
+      .col-12(v-else)
+        q-banner.text-center( dense border)
           p.text-subtitle1 Não há mensagens
-    .row.fixed.justify-center.q-mb-lg(style="bottom: 0; width: 65%;")
+    .row.fixed.justify-center.q-mb-lg(style="bottom: 0; width: 65%;" v-if="isInAChat")
       .col-12
         q-input(v-model="text"
           @keydown.enter="sendMessage(this.$route.params.id)"
@@ -15,11 +18,11 @@ q-page#xd
           rounded
           bg-color="white"
         )
-          q-btn(round dense flat icon="send" @click="sendMessage(this.$route.params.id)")
+          q-btn(round dense flat icon="send" @click="sendMessage(this.$route.params.id)" :disable="!text")
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 import { date } from 'quasar'
 
 export default defineComponent({
@@ -28,26 +31,59 @@ export default defineComponent({
   data: function () {
     return {
       text: '',
-      xets: []
+      messages: []
     }
   },
 
-  async created () {
+  async mounted () {
     await this.loadXetMessages(this.$route.params.id)
+    console.log('mounted this.messages')
     this.joinXet()
-    window.scrollTo(0, document.getElementById('xd').scrollHeight)
+    window.scrollTo(0, document.getElementById('xetPage').scrollHeight)
   },
-
   computed: {
-    xetMessages: function () {
-      return this.xets.map(x => x.message)
+    setOfMessages: function () {
+      const arrayOfMessages = []
+      let group = []
+      let senderChanged
+      let sender
+      this.messages.forEach(message => {
+        console.log(message)
+        if (!sender) {
+          console.log('sender em branco, atribuindo', message.sender)
+          sender = message.sender
+        }
+        if (sender === message.sender) {
+          console.log('mantendo sender')
+          group.push(message.message)
+        } else {
+          console.log('sender alterado')
+          senderChanged = true
+          if (senderChanged) {
+            console.log('adicionando mensagens do ultimo sender', sender)
+            arrayOfMessages.push({ sender: sender, messages: group })
+            group = []
+            senderChanged = false
+          }
+          sender = message.sender
+          group.push(message.message)
+        }
+      })
+      arrayOfMessages.push({ sender: sender, messages: group })
+      window.scrollTo(0, document.getElementById('xetPage').scrollHeight)
+      return arrayOfMessages
+    },
+    isInAChat: function () {
+      return /\/xet\/\d/.test(this.$route.fullPath)
     }
   },
 
   methods: {
     loadXetMessages: async function (id) {
+      this.isMessagesLoading = true
       const response = await this.$axios.get(`/xet/${id}/message/all`)
-      this.xets = response.data
+      this.isMessagesLoading = false
+      this.messages = response.data
     },
 
     sendMessage: function (id) {
@@ -57,40 +93,44 @@ export default defineComponent({
         sendTime: date.formatDate(Date.now(), 'YYYY-MM-DDTHH:mm:ss'),
         xetId: id
       }
-      this.socket.emit('message', message)
-      this.$axios.post(`/xet/${id}/message`, message)
-        .then(res => {
-          console.log('message sended at', message.sendTime)
-        })
-      this.text = ''
+      if (this.text) {
+        this.socket.emit('message', message)
+        this.$axios.post(`/xet/${id}/message`, message)
+          .then(res => {
+            console.log('message sended at', message.sendTime)
+          })
+        this.text = ''
+      }
     },
 
     joinXet: function () {
       const xetId = this.$route.params.id
+      console.log('joined', xetId)
       if (this.socket.connected && xetId) {
-        console.log('joined', xetId)
         this.socket.emit('join', xetId) // isso não parece correto/seguro
         this.socket.on('message', message => {
-          console.log(message)
-          this.xets.push(message)
+          this.messages.push(message)
         })
       }
     },
-
+    // disconnect the xet
     setStarvedXetInterval: function (id) {
-      return setInterval(() => {
-        if (id !== this.$route.params.id) {
-          this.socket.emit('leave', id)
-        }
-      }, 15000)
+      // console.log('Xet disconnect due to timeout')
+      // return setInterval(() => {
+      //   if (id !== this.$route.params.id) {
+      //     this.socket.emit('leave', id)
+      //   }
+      // }, 15000)
+    }
+  },
+
+  setup () {
+    return {
+      isMessagesLoading: ref(false)
     }
   },
 
   props: {
-    messages: {
-      type: Array,
-      default: function () { return [] }
-    },
     username: {
       type: String,
       default: function () { return '' }
