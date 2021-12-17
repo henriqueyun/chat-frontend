@@ -7,13 +7,13 @@ q-page#xetPage
       .col-12(v-else-if="messages.length")
           q-chat-message(v-for="messagesToRender in setOfMessages" :name="messagesToRender.sender" :text="messagesToRender.messages" :sent="messagesToRender.sender === username")
       .col-12(v-else)
-        q-banner.text-center( dense border)
-          p.text-subtitle1 Não há mensagens
+        q-banner.text-center(dense border)
+          p.text-subtitle1 There is no messages.
     .row.fixed.justify-center.q-mb-lg(style="bottom: 0; width: 65%;" v-if="isInAChat")
       .col-12
         q-input(v-model="text"
           @keydown.enter="sendMessage(this.$route.params.id)"
-          label="Digite aqui sua mensagem"
+          label="Type a message"
           outlined
           rounded
           bg-color="white"
@@ -37,7 +37,6 @@ export default defineComponent({
 
   async mounted () {
     await this.loadXetMessages(this.$route.params.id)
-    console.log('mounted this.messages')
     this.joinXet()
     window.scrollTo(0, document.getElementById('xetPage').scrollHeight)
   },
@@ -48,19 +47,14 @@ export default defineComponent({
       let senderChanged
       let sender
       this.messages.forEach(message => {
-        console.log(message)
         if (!sender) {
-          console.log('sender em branco, atribuindo', message.sender)
           sender = message.sender
         }
         if (sender === message.sender) {
-          console.log('mantendo sender')
           group.push(message.message)
         } else {
-          console.log('sender alterado')
           senderChanged = true
           if (senderChanged) {
-            console.log('adicionando mensagens do ultimo sender', sender)
             arrayOfMessages.push({ sender: sender, messages: group })
             group = []
             senderChanged = false
@@ -86,7 +80,7 @@ export default defineComponent({
       this.messages = response.data
     },
 
-    sendMessage: function (id) {
+    sendMessage: async function (id) {
       const message = {
         sender: this.username,
         message: this.text,
@@ -95,10 +89,7 @@ export default defineComponent({
       }
       if (this.text) {
         this.socket.emit('message', message)
-        this.$axios.post(`/xet/${id}/message`, message)
-          .then(res => {
-            console.log('message sended at', message.sendTime)
-          })
+        await this.$axios.post(`/xet/${id}/message`, message)
         this.text = ''
       }
     },
@@ -107,20 +98,11 @@ export default defineComponent({
       const xetId = this.$route.params.id
       console.log('joined', xetId)
       if (this.socket.connected && xetId) {
-        this.socket.emit('join', xetId) // isso não parece correto/seguro
+        this.socket.emit('join', xetId) // this seems wrong
         this.socket.on('message', message => {
           this.messages.push(message)
         })
       }
-    },
-    // disconnect the xet
-    setStarvedXetInterval: function (id) {
-      // console.log('Xet disconnect due to timeout')
-      // return setInterval(() => {
-      //   if (id !== this.$route.params.id) {
-      //     this.socket.emit('leave', id)
-      //   }
-      // }, 15000)
     }
   },
 

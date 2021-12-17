@@ -56,7 +56,7 @@ export default defineComponent({
           this.xets = res.data
           this.socket = io(process.env.SOCKET_URL)
             .on('connect', () => {
-              console.log(`Conectado via socket.io em ${process.env.SOCKET_URL}`)
+              console.log(`Connected by socket.io in ${process.env.SOCKET_URL}`)
             })
         })
     }
@@ -66,7 +66,7 @@ export default defineComponent({
     return {
       username: 'Guest',
       xets: [],
-      selectedXet: 'bar',
+      selectedXet: '',
       socket: {}
     }
   },

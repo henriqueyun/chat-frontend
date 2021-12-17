@@ -24,23 +24,16 @@
     <span class="row material-icons q-mb-sm" style="font-size: 80px; color: var(--q-primary);">
       chat
     </span>
-    <p class="ext-subtitle1">Não há Xets agendados no momento.</p>
+    <p class="ext-subtitle1">There is no Xets scheduled for now.</p>
   </div>
 </div>
 </template>
 
 <script>
 import { defineComponent } from 'vue'
-import { date } from 'quasar'
 
 export default defineComponent({
   name: 'Chats',
-
-  methods: {
-    getInHours: function (time) {
-      return date.formatDate(new Date(time).getMinutes(), 'HH:mm') + 'h'
-    }
-  },
 
   props: {
     username: {
