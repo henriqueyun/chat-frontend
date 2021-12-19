@@ -59,6 +59,12 @@ export default defineComponent({
               console.log(`Connected by socket.io in ${process.env.SOCKET_URL}`)
             })
         })
+    },
+
+    goHome: function () {
+      if (window.location.hash !== '#/') {
+        window.location.hash = '#/'
+      }
     }
   },
 
@@ -71,7 +77,8 @@ export default defineComponent({
     }
   },
 
-  created () {
+  mounted () {
+    this.goHome()
     this.require_username = true
     this.loadXets()
   },
