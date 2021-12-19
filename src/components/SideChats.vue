@@ -31,9 +31,16 @@
 
 <script>
 import { defineComponent } from 'vue'
+import { date } from 'quasar'
 
 export default defineComponent({
   name: 'Chats',
+
+  methods: {
+    getInHours: function (time) {
+      return date.formatDate(new Date(time).getMinutes(), 'HH:mm') + 'h'
+    }
+  },
 
   props: {
     username: {
