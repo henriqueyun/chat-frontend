@@ -1,6 +1,6 @@
 <template lang="pug">
 q-page#xetPage
-  .row.justify-center(style="min-height: inherit;" :class="messages.length ? q-pb-xl : ''")
+  .row.justify-center(style="min-height: inherit;")
     .row.col-12.justify-center.ma-lg.items-stretch.full-height.q-pa-md(style="min-height: inherit;")
       .col-12(v-if="isMessagesLoading")
         q-spinner(color="primary" size="3em")
@@ -36,8 +36,10 @@ export default defineComponent({
   },
 
   async mounted () {
-    await this.loadXetMessages(this.$route.params.id)
-    this.joinXet()
+    if (this.$route.params.id) {
+      await this.loadXetMessages(this.$route.params.id)
+      this.joinXet(this.$route.params.id)
+    }
     window.scrollTo(0, document.getElementById('xetPage').scrollHeight)
   },
   computed: {
@@ -51,7 +53,7 @@ export default defineComponent({
           sender = message.sender
         }
         if (sender === message.sender) {
-          group.push(message.message)
+          group.push(message.text)
         } else {
           senderChanged = true
           if (senderChanged) {
@@ -60,13 +62,14 @@ export default defineComponent({
             senderChanged = false
           }
           sender = message.sender
-          group.push(message.message)
+          group.push(message.text)
         }
       })
       arrayOfMessages.push({ sender: sender, messages: group })
       window.scrollTo(0, document.getElementById('xetPage').scrollHeight)
       return arrayOfMessages
     },
+
     isInAChat: function () {
       return /\/xet\/\d/.test(this.$route.fullPath)
     }
@@ -75,7 +78,7 @@ export default defineComponent({
   methods: {
     loadXetMessages: async function (id) {
       this.isMessagesLoading = true
-      const response = await this.$axios.get(`/xet/${id}/message/all`)
+      const response = await this.$axios.get(`/xet/${id}/message/all`).catch(err => console.error(err))
       this.isMessagesLoading = false
       this.messages = response.data
     },
@@ -83,26 +86,42 @@ export default defineComponent({
     sendMessage: async function (id) {
       const message = {
         sender: this.username,
-        message: this.text,
+        text: this.text,
         sendTime: date.formatDate(Date.now(), 'YYYY-MM-DDTHH:mm:ss'),
         xetId: id
       }
       if (this.text) {
-        this.socket.emit('message', message)
-        await this.$axios.post(`/xet/${id}/message`, message)
-        this.text = ''
+        this.$axios
+          .post(`/xet/${id}/message`, message)
+          .then(() => {
+            console.log('emiting')
+            this.socket.emit('message', message)
+            this.text = ''
+          })
       }
     },
 
-    joinXet: function () {
-      const xetId = this.$route.params.id
-      console.log('joined', xetId)
-      if (this.socket.connected && xetId) {
-        this.socket.emit('join', xetId) // this seems wrong
-        this.socket.on('message', message => {
-          this.messages.push(message)
+    joinXet: async function (xetId) {
+      this.socketReady()
+        .then(() => {
+          if (xetId) {
+            console.log('xetId')
+            this.socket.emit('join', xetId) // this seems wrong
+            this.socket.on('message', message => {
+              this.messages.push(message)
+            })
+          }
         })
-      }
+    },
+
+    socketReady: function () {
+      return new Promise((resolve) => {
+        if (this.socket.connected) {
+          resolve(true)
+        } else {
+          setTimeout(this.socketReady, 1000)
+        }
+      })
     }
   },
 
