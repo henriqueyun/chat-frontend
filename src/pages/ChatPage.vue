@@ -94,7 +94,6 @@ export default defineComponent({
         this.$axios
           .post(`/xet/${id}/message`, message)
           .then(() => {
-            console.log('emiting')
             this.socket.emit('message', message)
             this.text = ''
           })
@@ -105,7 +104,6 @@ export default defineComponent({
       this.socketReady()
         .then(() => {
           if (xetId) {
-            console.log('xetId')
             this.socket.emit('join', xetId) // this seems wrong
             this.socket.on('message', message => {
               this.messages.push(message)
