@@ -1,8 +1,8 @@
 <template>
 <span v-if="xets.length">
-  <a v-for="{id, owner, title, startTime, endTime} in xets" v-bind:key="id"  custom>
-    <router-link :to="{path: `/xet/${id}`}" class="custom-not-working">
-      <q-item clickable v-ripple >
+  <a v-for="{id, owner, title, startTime, endTime, ongoing} in xets" v-bind:key="id" :class="!ongoing ? 'disabled' : ''">
+    <router-link :to="ongoing ? {path: `/xet/${id}`} : ''" class="custom-not-working">
+      <q-item clickable v-ripple>
         <q-item-section side>
           <span class="material-icons" style="font-size: 36px;">
           question_answer
@@ -12,7 +12,7 @@
           <q-item-label>{{ title }} {{ owner }}</q-item-label>
           <q-item-label caption> {{ getInHours(startTime) }} until {{ getInHours(endTime) }}</q-item-label>
         </q-item-section>
-        <q-item-section avatar>
+        <q-item-section avatar v-if="!ongoing" >
           <q-icon name="lock" />
         </q-item-section>
       </q-item>
@@ -35,10 +35,26 @@ import { date } from 'quasar'
 
 export default defineComponent({
   name: 'Chats',
+  mounted () {
+    setInterval(() => {
+      this.refreshXets()
+    }, 3000)
+  },
 
   methods: {
     getInHours: function (time) {
       return date.formatDate(new Date(time).getMinutes(), 'HH:mm') + 'h'
+    },
+
+    isXetOngoing: function (initialTime, finalTime) {
+      return date.isBetweenDates(new Date(), initialTime, finalTime)
+    },
+
+    refreshXets: function () {
+      this.xets.map(xet => {
+        xet.ongoing = this.isXetOngoing(xet.startTime, xet.endTime)
+        return xet
+      })
     }
   },
 
@@ -59,5 +75,9 @@ export default defineComponent({
   .custom-not-working {
       color: inherit;
       text-decoration: none;
+  }
+
+  .side-chat-disabled {
+    pointer-events: none !important;
   }
 </style>
