@@ -1,6 +1,6 @@
 {
   "name": "chat-frontend-quasar",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A simple chat web page built with Quasar.js",
   "productName": "Chat",
   "author": "henriqueyun <henriqueyun@gmail.com>",
