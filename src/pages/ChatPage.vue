@@ -2,10 +2,10 @@
 q-page#xetPage
   .row.justify-center(style="min-height: inherit;")
     .row.col-12.justify-center.ma-lg.items-stretch.full-height.q-pa-md(style="min-height: inherit;")
-      .col-12(v-if="isMessagesLoading")
-        q-spinner(color="primary" size="3em")
+      .col-12.absolute-center.text-center(v-if="isMessagesLoading")
+        q-spinner(color="primary" size="10em")
       .col-12(v-else-if="messages.length")
-          q-chat-message(v-for="messagesToRender in setOfMessages" :name="messagesToRender.sender" :text="messagesToRender.messages" :sent="messagesToRender.sender === username")
+        q-chat-message(v-for="messagesToRender in setOfMessages" :name="messagesToRender.sender" :text="messagesToRender.messages" :sent="messagesToRender.sender === username")
       .col-12(v-else)
         q-banner.text-center(dense border)
           p.text-subtitle1 There is no messages.
