@@ -1,6 +1,6 @@
 # Chat (chat-frontend-quasar)
 
-A chat app
+A simple chat web page built with Quasar.js
 
 ## Install the dependencies
 ```bash
